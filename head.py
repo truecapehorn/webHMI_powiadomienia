@@ -1,6 +1,9 @@
-import json
+import json, os
 
-filepath = 'setup.json'
+cur_path = os.path.dirname(__file__)
+
+filepath = cur_path+'/setup.json'
+
 
 
 def json_save(path, data):
