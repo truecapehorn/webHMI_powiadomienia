@@ -1,6 +1,6 @@
 import json
 
-filepath = 'setup.json'
+filepath = '/setup.json'
 
 
 def json_save(path, data):
