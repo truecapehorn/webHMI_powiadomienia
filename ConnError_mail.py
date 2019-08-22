@@ -77,8 +77,8 @@ with open('mail_message.txt', 'w')  as w_writer:
     if len(connectio_problem)>1:
         for i in connectio_problem:
             title = connections.loc[i,'title']
-            print(f"Błąd połaczenia nr. {i} - {title}")
-            mesages=f"Błąd połaczenia nr {i} - {title}\n"
+            print("Błąd połaczenia nr. {} - {}".format(i,title ))
+            mesages="Błąd połaczenia nr {} - {}\n".format(i,title )
             w_writer.write(mesages)
     else: w_writer.write('Brak problemow z połaczeniami. :)')
         
