@@ -3,7 +3,7 @@
 
 # ## pobrabnie danych z webHMI
 
-# In[1]:
+# In[38]:
 
 
 from API_webHMI import *
@@ -12,14 +12,15 @@ from head import headers, device_adress,filepath
 import pandas as pd
 
 
-# In[2]:
+# In[39]:
 
 
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)  # or 1000
+pd.set_option('display.max_rows', None)  # or 1000
+pd.set_option('display.max_colwidth', -1)  # or 199
 
 
-# In[3]:
+# In[40]:
 
 
 filepath
@@ -27,7 +28,7 @@ filepath
 
 # ## Odczytanie listy połaczen
 
-# In[4]:
+# In[41]:
 
 
 def conn():
@@ -35,12 +36,22 @@ def conn():
 #     displayHeader(headers)
     req1 = connectionList(device_adress, headers)  # pobranie listy polaczen plc.
     return req1
-connections=pd.DataFrame(conn())
+connections=pd.DataFrame(conn()).set_index('id')
+
+
+# In[42]:
+
+
+def f(x):
+    try:
+        return x.astype('int')
+    except:
+        return x
 
 
 # ## Odczytanie listy rejstrow
 
-# In[5]:
+# In[43]:
 
 
 def reg():
@@ -54,7 +65,7 @@ def reg():
 
 # ## Odczytanie rejestru z bledami połaczen
 
-# In[6]:
+# In[44]:
 
 
 def reg_val(device_adress, headers):
@@ -64,18 +75,18 @@ def reg_val(device_adress, headers):
     return req1
 
 
-# In[7]:
+# In[45]:
 
 
 header1=headers
-header1['X-WH-CONNS']='262'
+header1['X-WH-CONNS']='262' # 262 to numer polaczenia w webHMI
 val=reg_val(device_adress,header1)
 val
 
 
 # ## Nadpisanie pliku wiadomosci
 
-# In[8]:
+# In[46]:
 
 
 connectio_problem=val['4546']['v'].split(",") # wiadomosc do zapisania
@@ -83,16 +94,16 @@ with open('mail_message.txt', 'w')  as w_writer:
     if len(connectio_problem)>1:
         for i in connectio_problem:
             title = connections.loc[i,'title']
-            print("Błąd połaczenia nr. {} - {}".format(i,title ))
-            mesages="Błąd połaczenia nr {} - {}\n".format(i,title )
+            print("Błąd połączenia nr {} - {}\n".format(i,title ))
+            mesages="Błąd połączenia nr {} - {}\n".format(i,title )
             w_writer.write(mesages)
-    else: w_writer.write('Brak problemow z połaczeniami. :)')
+    else: w_writer.write('Brak problemow z połączeniami. :)')
         
 
 
 # ## Wyslanie maila
 
-# In[9]:
+# In[10]:
 
 
 from envelopes import Envelope, GMailSMTP
@@ -108,8 +119,7 @@ def send_emial(content):
             from_addr=( u'WebHMI - Raport'),
             to_addr=(addr[i]),
             subject=u'Raport o komunikacji {} dla {}'.format(i+1,addr[i]),
-            text_body=email
-        )
+            text_body=email)
         #envelope.add_attachment(str(atachment))
 
     # Send the envelope using an ad-hoc connection...
@@ -117,43 +127,13 @@ def send_emial(content):
         print('email do adresata. {} wysłany.'.format(addr[i]))
 
 
-# In[10]:
+# In[11]:
 
 
 if len(connectio_problem)>0:
     with open('mail_message.txt', 'r') as content_file:
         content = content_file.read()
         send_emial(content)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
 
 # In[ ]:
