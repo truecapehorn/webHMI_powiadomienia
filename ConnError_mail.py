@@ -119,8 +119,8 @@ frame=scan_frame.sort_values('scan_time',ascending=False)
 
 
 pivot_sum=frame.pivot_table(index='category',values='scan_time',aggfunc=[np.mean,np.sum])
-# df=df.swaplevel(0,1,axis=1)
-pivot_sum=pivot_sum.swaplevel(0,1,axis=1).sort_values(('scan_time','sum'),ascending=False)
+pivot_sum.columns=pivot_sum.columns.droplevel(1)
+# pivot_sum=pivot_sum.swaplevel(0,1,axis=1).sort_values(('scan_time','sum'),ascending=False)
 
 
 # ## Nadpisanie pliku wiadomosci
@@ -149,7 +149,7 @@ with open('mail_message.txt', 'w')  as w_writer:
 
 # ## Wyslanie maila
 
-# In[17]:
+# In[14]:
 
 
 from envelopes import Envelope, GMailSMTP
@@ -157,8 +157,8 @@ import glob
 
 def send_emial(content):
 
-    addr=['tito02@o2.pl','norbert.jablonski@elam.pl','michal.marchelewski@elam.pl']
-    email= u"<h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>\n{}\n{}".format(str(content),pivot_sum.to_html())
+    addr=['tito02@o2.pl', 'norbert.jablonski@elam.pl','michal.marchelewski@elam.pl']
+    email= u"<h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>\n{}\n<h4>Czasy skanowania</h4>\n{}".format(str(content),pivot_sum.to_html())
 #     email2=pivot_sum.to_html()
     for i in range(len(addr)):
         print('Wysłanie wiadomosci do {}'.format(addr[i]))
