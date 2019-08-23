@@ -1,3 +1,6 @@
 Pipfile*
-mail_message.txt
+*.txt
 *.pyc
+.ipynb_checkpoints/*
+__pycache__/*
+
