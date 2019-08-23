@@ -1,1 +1,9 @@
-Brak problemow z po³¹czeniami. :)
+B³¹d po³¹czenia nr 6 - APAR_111.1
+B³¹d po³¹czenia nr 31 - APAR_213.1
+B³¹d po³¹czenia nr 72 - APAR_411.11
+B³¹d po³¹czenia nr 87 - APAR_511.11
+B³¹d po³¹czenia nr 115 - APAR_715.15
+B³¹d po³¹czenia nr 120 - APAR_720.20
+B³¹d po³¹czenia nr 158 - FIF_11.11
+B³¹d po³¹czenia nr 159 - FIF_104.4
+B³¹d po³¹czenia nr 162 - FIF_203.3
