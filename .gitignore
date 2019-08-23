@@ -1,2 +1,3 @@
 Pipfile*
 mail_message.txt
+*.pyc
