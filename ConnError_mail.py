@@ -8,7 +8,7 @@
 
 from API_webHMI import *
 from defs import *
-from head import headers, device_adress
+from head import headers, device_adress,filepath
 import pandas as pd
 
 
@@ -19,9 +19,15 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 
+# In[3]:
+
+
+filepath
+
+
 # ## Odczytanie listy połaczen
 
-# In[3]:
+# In[4]:
 
 
 def conn():
@@ -34,7 +40,7 @@ connections=pd.DataFrame(conn())
 
 # ## Odczytanie listy rejstrow
 
-# In[4]:
+# In[5]:
 
 
 def reg():
@@ -48,7 +54,7 @@ def reg():
 
 # ## Odczytanie rejestru z bledami połaczen
 
-# In[5]:
+# In[6]:
 
 
 def reg_val(device_adress, headers):
@@ -58,7 +64,7 @@ def reg_val(device_adress, headers):
     return req1
 
 
-# In[6]:
+# In[7]:
 
 
 header1=headers
@@ -69,7 +75,7 @@ val
 
 # ## Nadpisanie pliku wiadomosci
 
-# In[7]:
+# In[8]:
 
 
 connectio_problem=val['4546']['v'].split(",") # wiadomosc do zapisania
@@ -77,8 +83,8 @@ with open('mail_message.txt', 'w')  as w_writer:
     if len(connectio_problem)>1:
         for i in connectio_problem:
             title = connections.loc[i,'title']
-            print(f"Błąd połaczenia nr. {i} - {title}")
-            mesages=f"Błąd połaczenia nr {i} - {title}\n"
+            print("Błąd połaczenia nr. {} - {}".format(i,title ))
+            mesages="Błąd połaczenia nr {} - {}\n".format(i,title )
             w_writer.write(mesages)
     else: w_writer.write('Brak problemow z połaczeniami. :)')
         
@@ -86,7 +92,7 @@ with open('mail_message.txt', 'w')  as w_writer:
 
 # ## Wyslanie maila
 
-# In[8]:
+# In[9]:
 
 
 from envelopes import Envelope, GMailSMTP
@@ -94,7 +100,7 @@ import glob
 
 def send_emial(content):
 
-    addr=['tito02@o2.pl', 'norbert.jablonski@elam.pl',]
+    addr=['tito02@o2.pl', 'norbert.jablonski@elam.pl','michal.marchelewski@elam.pl']
     email= u"WebHMI ma problemy z komunikacją dla następujących urządzeń:\n{}".format(str(content))
     for i in range(len(addr)):
         print('Wysłanie wiadomosci do {}'.format(addr[i]))
@@ -111,13 +117,37 @@ def send_emial(content):
         print('email do adresata. {} wysłany.'.format(addr[i]))
 
 
-# In[9]:
+# In[10]:
 
 
 if len(connectio_problem)>0:
     with open('mail_message.txt', 'r') as content_file:
         content = content_file.read()
         send_emial(content)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
