@@ -1,5 +1,6 @@
-Brak problemow z połączeniami. :)
+<h3>Brak problemow z połączeniami. :)</h3>
 
+<<<<<<< HEAD
 Scan time dla APAR_30.1 wynosi 43
 Scan time dla APAR_31.2 wynosi 51
 Scan time dla APAR_32.3 wynosi 49
@@ -252,3 +253,5 @@ Scan time dla REK#7 wynosi 172
 Scan time dla LE03_SUM wynosi 1
 Scan time dla Bilans licznikow energii wynosi 0
 Scan time dla SOLAR INWERTER wynosi 0
+=======
+>>>>>>> 8d8edc1b77943c8e604b6c885d7b4a0665205952
