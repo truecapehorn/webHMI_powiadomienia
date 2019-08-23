@@ -3,7 +3,7 @@
 
 # ## pobrabnie danych z webHMI
 
-# In[38]:
+# In[1]:
 
 
 from API_webHMI import *
@@ -12,7 +12,7 @@ from head import headers, device_adress,filepath
 import pandas as pd
 
 
-# In[39]:
+# In[2]:
 
 
 pd.set_option('display.max_columns', None)  # or 1000
@@ -20,7 +20,7 @@ pd.set_option('display.max_rows', None)  # or 1000
 pd.set_option('display.max_colwidth', -1)  # or 199
 
 
-# In[40]:
+# In[3]:
 
 
 filepath
@@ -28,7 +28,7 @@ filepath
 
 # ## Odczytanie listy połaczen
 
-# In[41]:
+# In[4]:
 
 
 def conn():
@@ -39,7 +39,7 @@ def conn():
 connections=pd.DataFrame(conn()).set_index('id')
 
 
-# In[42]:
+# In[5]:
 
 
 def f(x):
@@ -51,7 +51,7 @@ def f(x):
 
 # ## Odczytanie listy rejstrow
 
-# In[43]:
+# In[6]:
 
 
 def reg():
@@ -65,7 +65,7 @@ def reg():
 
 # ## Odczytanie rejestru z bledami połaczen
 
-# In[44]:
+# In[7]:
 
 
 def reg_val(device_adress, headers):
@@ -75,18 +75,24 @@ def reg_val(device_adress, headers):
     return req1
 
 
-# In[45]:
+# In[8]:
 
 
 header1=headers
 header1['X-WH-CONNS']='262' # 262 to numer polaczenia w webHMI
 val=reg_val(device_adress,header1)
-val
+
+
+# In[9]:
+
+
+import ast
+scan_time=[ast.literal_eval(x) for x in val['4547']['v'].split(";")]
 
 
 # ## Nadpisanie pliku wiadomosci
 
-# In[46]:
+# In[10]:
 
 
 connectio_problem=val['4546']['v'].split(",") # wiadomosc do zapisania
@@ -97,13 +103,20 @@ with open('mail_message.txt', 'w')  as w_writer:
             print("Błąd połączenia nr {} - {}\n".format(i,title ))
             mesages="Błąd połączenia nr {} - {}\n".format(i,title )
             w_writer.write(mesages)
-    else: w_writer.write('Brak problemow z połączeniami. :)')
+    else: w_writer.write('Brak problemow z połączeniami. :)\n\n')
+with open('mail_message.txt', 'a')  as a_writer:
+    for i in scan_time:
+        title = connections.loc[str(i[0]),'title']
+#         print("Scan time dla {} wynosi {}".format(title,i[1]))
+        mesages2 = "Scan time dla {} wynosi {}\n".format(title,i[1])
+        a_writer.write(mesages2)
+ 
         
 
 
 # ## Wyslanie maila
 
-# In[10]:
+# In[11]:
 
 
 from envelopes import Envelope, GMailSMTP
@@ -127,7 +140,7 @@ def send_emial(content):
         print('email do adresata. {} wysłany.'.format(addr[i]))
 
 
-# In[11]:
+# In[12]:
 
 
 if len(connectio_problem)>0:
