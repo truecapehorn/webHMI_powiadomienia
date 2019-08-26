@@ -119,13 +119,13 @@ frame=scan_frame.sort_values('scan_time',ascending=False)
 
 
 pivot_sum=frame.pivot_table(index='category',values='scan_time',aggfunc=[np.mean,np.sum])
-# pivot_sum.columns=pivot_sum.columns.droplevel(1)
-# pivot_sum=pivot_sum.swaplevel(0,1,axis=1).sort_values(('scan_time','sum'),ascending=False)
+pivot_sum.columns=pivot_sum.columns.droplevel(1)
+pivot_sum.sort_values('sum',ascending=False,inplace=True)
 
 
 # ## Nadpisanie pliku wiadomosci
 
-# In[13]:
+# In[14]:
 
 
 connectio_problem=val['4546']['v'].split(",") # wiadomosc do zapisania
@@ -137,19 +137,12 @@ with open('mail_message.txt', 'w')  as w_writer:
             mesages="<p>Błąd połączenia nr {} - {}</p>\n".format(i,title )
             w_writer.write(mesages)
     else: w_writer.write('<h3>Brak problemow z połączeniami. :)</h3>\n\n')
-# with open('mail_message.txt', 'a')  as a_writer:
-#     for i in scan_time:
-#         title = connections.loc[str(i[0]),'title']
-# #         print("Scan time dla {} wynosi {}".format(title,i[1]))
-#         mesages2 = "Scan time dla {} wynosi {}\n".format(title,i[1])
-#         a_writer.write(mesages2)
- 
         
 
 
 # ## Wyslanie maila
 
-# In[14]:
+# In[15]:
 
 
 from envelopes import Envelope, GMailSMTP
@@ -158,8 +151,6 @@ import glob
 def send_emial(content):
 
     addr=['tito02@o2.pl', 'norbert.jablonski@elam.pl','michal.marchelewski@elam.pl']
-    email= u"<h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>\n{}\n<h4>Czasy skanowania</h4>\n{}".format(str(content),pivot_sum.to_html())
-#     email2=pivot_sum.to_html()
     for i in range(len(addr)):
         print('Wysłanie wiadomosci do {}'.format(addr[i]))
         envelope = Envelope(
@@ -173,24 +164,19 @@ def send_emial(content):
 
     # Send the envelope using an ad-hoc connection...
         send_msg=envelope.send('smtp.googlemail.com', login='truecapehorn@gmail.com',password='Ptjczinp249', tls=True,)
-        print('email do adresata. {} wysłany.'.format(addr[i]))
-    print(email)    
+        print('email do adresata. {} wysłany.'.format(addr[i]))  
     return send_msg
-
-
-# In[15]:
-
-
-if len(connectio_problem)>0:
-    with open('mail_message.txt', 'r') as content_file:
-        content = content_file.read()
-        send_msg=send_emial(content)
 
 
 # In[16]:
 
 
-send_msg
+if len(connectio_problem)>0:
+    with open('mail_message.txt', 'r') as content_file:
+        content = content_file.read()
+        email= u"<h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>\n{}\n<h4>Czasy skanowania</h4>\n{}".format(str(content),pivot_sum.to_html())
+        print(email)
+        send_msg=send_emial(email)
 
 
 # In[ ]:
