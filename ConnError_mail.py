@@ -119,7 +119,7 @@ frame=scan_frame.sort_values('scan_time',ascending=False)
 
 
 pivot_sum=frame.pivot_table(index='category',values='scan_time',aggfunc=[np.mean,np.sum])
-pivot_sum.columns=pivot_sum.columns.droplevel(1)
+# pivot_sum.columns=pivot_sum.columns.droplevel(1)
 # pivot_sum=pivot_sum.swaplevel(0,1,axis=1).sort_values(('scan_time','sum'),ascending=False)
 
 
