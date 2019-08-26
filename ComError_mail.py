@@ -160,7 +160,7 @@ import glob
 
 def send_emial(content):
 
-    addr=['tito02@o2.pl']#, 'norbert.jablonski@elam.pl','michal.marchelewski@elam.pl']
+    addr=['tito02@o2.pl', 'norbert.jablonski@elam.pl','michal.marchelewski@elam.pl']
     for i in range(len(addr)):
         print('Wysłanie wiadomosci do {}'.format(addr[i]))
         envelope = Envelope(
