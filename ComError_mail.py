@@ -119,9 +119,13 @@ frame=scan_frame.sort_values('scan_time',ascending=False)
 
 
 pivot_sum=frame.pivot_table(index='category',values='scan_time',aggfunc=[np.mean,np.sum])
-pivot_sum.columns=pivot_sum.columns.droplevel(1)
+
+
+# In[13]:
+
+
+pivot_sum.columns=pivot_sum.columns.droplevel(level=1)
 pivot_sum.sort_values('sum',ascending=False,inplace=True)
-# pivot_sum=pivot_sum.swaplevel(0,1,axis=1).sort_values(('scan_time','sum'),ascending=False)
 
 
 # ## Nadpisanie pliku wiadomosci
