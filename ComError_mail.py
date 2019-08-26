@@ -127,9 +127,15 @@ pivot_sum=frame[['category','scan_time']].groupby('category').agg(['sum','mean']
 pivot_sum.sort_values(('scan_time','sum'),ascending=False,inplace=True)
 
 
+# In[15]:
+
+
+worsts=frame.set_index('ids').sort_values('scan_time',ascending=False).head(10)
+
+
 # ## Nadpisanie pliku wiadomosci
 
-# In[14]:
+# In[16]:
 
 
 connectio_problem=val['4546']['v'].split(",") # wiadomosc do zapisania
@@ -146,7 +152,7 @@ with open('mail_message.txt', 'w')  as w_writer:
 
 # ## Wyslanie maila
 
-# In[15]:
+# In[17]:
 
 
 from envelopes import Envelope, GMailSMTP
@@ -154,7 +160,7 @@ import glob
 
 def send_emial(content):
 
-    addr=['tito02@o2.pl', 'norbert.jablonski@elam.pl','michal.marchelewski@elam.pl']
+    addr=['tito02@o2.pl']#, 'norbert.jablonski@elam.pl','michal.marchelewski@elam.pl']
     for i in range(len(addr)):
         print('Wysłanie wiadomosci do {}'.format(addr[i]))
         envelope = Envelope(
@@ -172,13 +178,21 @@ def send_emial(content):
     return send_msg
 
 
-# In[16]:
+# In[ ]:
+
+
+
+
+
+# In[18]:
 
 
 if len(connectio_problem)>0:
     with open('mail_message.txt', 'r') as content_file:
         content = content_file.read()
-        email= u"<h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>\n{}\n<h4>Czasy skanowania</h4>\n{}".format(str(content),pivot_sum.to_html())
+        email= u"<h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>\n{}\n<h4>Czasy skanowania</h4>\n{}\n<h4>10 najgorszych</h4>{}".format(str(content),
+                                                                                                                                      pivot_sum.to_html(),
+                                                                                                                                     worsts.to_html())
         print(email)
         send_msg=send_emial(email)
 
