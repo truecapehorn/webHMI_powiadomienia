@@ -111,7 +111,7 @@ for n,i in enumerate(scan_time):
 # In[11]:
 
 
-scan_frame=pd.DataFrame(scan_dict,).T.apply(f)
+scan_frame=pd.DataFrame(scan_dict,).T.apply(f) # zamiana na inty
 frame=scan_frame.sort_values('scan_time',ascending=False)
 
 
@@ -139,15 +139,15 @@ worsts=frame.set_index('ids').sort_values('scan_time',ascending=False).head(10)
 
 
 connectio_problem=val['4546']['v'].split(",") # wiadomosc do zapisania
-with open('mail_message.txt', 'w')  as w_writer:
-    if len(connectio_problem)>1:
-        for i in connectio_problem:
-            title = connections.loc[i,'title']
-#             print("Błąd połączenia nr {} - {}\n".format(i,title ))
-            mesages="<p>Błąd połączenia nr {} - {}</p>\n".format(i,title )
-            w_writer.write(mesages)
-    else: w_writer.write('<h3>Brak problemow z połączeniami. :)</h3>\n\n')
-        
+errors=[]
+if len(connectio_problem)>1:
+    for i in connectio_problem:
+        title = connections.loc[i,'title']
+        errors.append("<li>Błąd połączenia z urządzeniem o id {} - {}</li>".format(i,title ))
+else: errors.append("<h3>Brak problemow z połączeniami. :)</h3>")
+
+mesages="\n".join(errors)
+mesages
 
 
 # ## Wyslanie maila
@@ -160,9 +160,7 @@ import glob
 
 def send_emial(content):
 
-
     addr=['tito02@o2.pl', 'norbert.jablonski@elam.pl']#,'michal.marchelewski@elam.pl']
-
     for i in range(len(addr)):
         print('Wysłanie wiadomosci do {}'.format(addr[i]))
         envelope = Envelope(
@@ -170,7 +168,6 @@ def send_emial(content):
             to_addr=(addr[i]),
             subject=u'Raport o komunikacji {} dla {}'.format(i+1,addr[i]),
             html_body=email,
-#             text_body=email
         )
         #envelope.add_attachment(str(atachment))
 
@@ -180,33 +177,18 @@ def send_emial(content):
     return send_msg
 
 
-# In[ ]:
-
-
-
-
-
 # In[17]:
 
 
 if len(connectio_problem)>0:
-    with open('mail_message.txt', 'r') as content_file:
-        content = content_file.read()
-        email= u"<h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>\n{}\n<h4>Czasy skanowania</h4>\n{}\n<h4>10 najgorszych</h4>{}".format(str(content),
-                                                                                                                                      pivot_sum.to_html(),
-                                                                                                                                     worsts.to_html())
-        print(email)
-        send_msg=send_emial(email)
+    email=u"""<h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>
+    \n{}
+    \n<h4>Czasy skanowania</h4>
+    {}
+    \n<h4>10 najgorszych</h4>
+    {}
+    """.format(mesages,pivot_sum.to_html(),worsts.to_html())
 
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+    print(email)
+    send_msg=send_emial(email)
 
