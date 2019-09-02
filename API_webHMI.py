@@ -3,6 +3,7 @@ import requests
 
 class ApiWebHmi:
     """ Umozliwia połaczenie sie z urzadzniem webHMI za pomocą jego API """
+
     def __init__(self, device_adress, api_kay):
         self.device_adress = device_adress
         self.headers = {'X-WH-APIKEY': api_kay,
@@ -29,7 +30,7 @@ class ApiWebHmi:
     def make_api_adress(self, action_name, kwargs):
         '''Robi adres zapytania'''
 
-        if 'ID' in kwargs: # sprawdznie czy nie trzeba uzyc rozszeżonej wersji api adresu
+        if 'ID' in kwargs:  # sprawdznie czy nie trzeba uzyc rozszerzonej wersji api adresu
             ID = kwargs['ID']
         else:
             ID = ''
@@ -39,19 +40,11 @@ class ApiWebHmi:
     def make_headers(self, kwargs):
         '''Robi nagłowkek zapytania'''
         headers = self.headers
-        # sprawdznie czy nie trzeba naspisac naglowka
-        if 'X_WH_CONNS' in kwargs.keys():
-            headers['X-WH-CONNS'] = kwargs['X_WH_CONNS']
-        if 'X_WH_START' in kwargs.keys():
-            headers['X-WH-START'] = kwargs['X_WH_START']
-        if 'X_WH_END' in kwargs.keys():
-            headers['X-WH-END'] = kwargs['X_WH_END']
-        if 'X_WH_REG_IDS' in kwargs.keys():
-            headers['X-WH-REG-IDS'] = kwargs['X_WH_REG_IDS']
-        if 'X_WH_SLICES' in kwargs.keys():
-            headers['X-WH-SLICES'] = kwargs['X_WH_SLICES']
-        if 'X_WH_REGS' in kwargs.keys():
-            headers['X-WH-REGS'] = kwargs['X_WH_REGS']
+        # sprawdznie czy nie trzeba nadpisac naglowka
+        for k, v in kwargs.items():
+            k = k.replace('_', '-')  # zamiana spacji na myślnik
+            if k in headers.keys():
+                headers[k] = v
         return headers
 
     def make_req(self, action_name, response=False, **kwargs):
@@ -59,7 +52,7 @@ class ApiWebHmi:
         # ADRESS
         api_adress = self.make_api_adress(action_name, kwargs)
         url = self.device_adress + api_adress
-        print('Polaczenie na adres: ',url)
+        print('Polaczenie na adres: ', url)
         # HEAD
         head = self.make_headers(kwargs)
         # GET
@@ -84,9 +77,9 @@ if __name__ == "__main__":
 
     web = ApiWebHmi(device_adress, APIKEY)
 
-    con0=web.make_req('connectionList')
-    for i in con0:
-        print(i)
+    # con0=web.make_req('connectionList')
+    # for i in con0:
+    #     print(i)
 
     X_WH_CONNS = '10,12,14'
     con1 = web.make_req('getCurValue', response=False, X_WH_CONNS=X_WH_CONNS)
