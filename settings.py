@@ -20,22 +20,7 @@ def json_read(path):
 data = json_read(filepath)
 
 APIKEY = data["properties"]['APIKEY']
-# USER = 'admin'
-# PASS = 'elam4321'
-# device_adress = 'http://80.50.4.62:60043'
 device_adress = data["properties"]['device_adress']
-
-headers = {'X-WH-APIKEY': APIKEY,
-           'Accept': 'application/json',
-           'Content-Type': 'application/json',
-           'X-WH-CONNS': '',
-           'X-WH-START': '',
-           'X-WH-END': '',
-           'X-WH-REG-IDS': '',
-           'X-WH-SLICES': '',
-           'X-WH-REGS': '',
-
-           }
 
 if __name__ == "__main__":
     print(data)

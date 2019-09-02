@@ -6,9 +6,9 @@
 # In[1]:
 
 
-from API_webHMI import *
-from defs import *
-from head import headers, device_adress,filepath
+from API_webHMI import ApiWebHmi
+from settings import device_adress, APIKEY
+
 import pandas as pd
 import numpy as np
 
@@ -24,25 +24,7 @@ pd.set_option('display.max_colwidth', -1)  # or 199
 # In[3]:
 
 
-filepath
-
-
-# ## Odczytanie listy połaczen
-
-# In[4]:
-
-
-def conn():
-    print('1: Connection Req\n')
-#     displayHeader(headers)
-    req1 = connectionList(device_adress, headers)  # pobranie listy polaczen plc.
-    return req1
-connections=pd.DataFrame(conn()).set_index('id')
-
-
-# In[5]:
-
-
+# zamiana na inty
 def f(x):
     try:
         return x.astype('int')
@@ -50,43 +32,35 @@ def f(x):
         return x
 
 
-# ## Odczytanie listy rejstrow
+# ## Zrobinie obiektu webHMI
 
-# In[6]:
+# In[4]:
 
 
-def reg():
-    print('\n2 :Registers Req\n')
-#     displayHeader(headers)  # wystarczy podstawowy naglowek
-    req2 = registerList(device_adress, headers)  # odczytanie listy rejestrow
-    return req2
-# registers=pd.DataFrame(reg())
-# registers.shape
+web = ApiWebHmi(device_adress, APIKEY)
+
+
+# ## Odczytanie listy połaczen
+
+# In[5]:
+
+
+req1=web.make_req('connectionList')
+connections=pd.DataFrame(req1).set_index('id')
 
 
 # ## Odczytanie rejestru z bledami połaczen
 
-# In[7]:
+# In[6]:
 
 
-def reg_val(device_adress, headers):
-    print('1: Connection Req\n')
-#     displayHeader(headers)
-    req1 = getCurValue(device_adress, headers)  # pobranie listy polaczen plc.
-    return req1
-
-
-# In[8]:
-
-
-header1=headers
-header1['X-WH-CONNS']='262' # 262 to numer polaczenia w webHMI
-val=reg_val(device_adress,header1)
+X_WH_CONNS='262' # id polaczania z informacja
+val=web.make_req('getCurValue',X_WH_CONNS=X_WH_CONNS)
 
 
 # ## Odczytanie tablicy z scantime
 
-# In[9]:
+# In[7]:
 
 
 import ast
@@ -95,7 +69,7 @@ scan_time=[ast.literal_eval(x) for x in val['4547']['v'].split(";")]
 
 # ## Stworzenie tablicy
 
-# In[10]:
+# In[8]:
 
 
 scan_dict={}
@@ -108,34 +82,34 @@ for n,i in enumerate(scan_time):
                   'scan_time':int(i[1])}
 
 
-# In[11]:
+# In[9]:
 
 
 scan_frame=pd.DataFrame(scan_dict,).T.apply(f) # zamiana na inty
 frame=scan_frame.sort_values('scan_time',ascending=False)
 
 
-# In[12]:
+# In[10]:
 
 
 pivot_sum=frame[['category','scan_time']].groupby('category').agg(['sum','mean'])
 
 
-# In[13]:
+# In[11]:
 
 
 pivot_sum.sort_values(('scan_time','sum'),ascending=False,inplace=True)
 
 
-# In[14]:
+# In[12]:
 
 
 worsts=frame.set_index('ids').sort_values('scan_time',ascending=False).head(10)
 
 
-# ## Nadpisanie pliku wiadomosci
+# ## Napisanie wiadomosci
 
-# In[15]:
+# In[13]:
 
 
 connectio_problem=val['4546']['v'].split(",") # wiadomosc do zapisania
@@ -152,7 +126,7 @@ mesages
 
 # ## Wyslanie maila
 
-# In[16]:
+# In[14]:
 
 
 from envelopes import Envelope, GMailSMTP
@@ -177,7 +151,7 @@ def send_emial(content):
     return send_msg
 
 
-# In[17]:
+# In[15]:
 
 
 if len(connectio_problem)>0:
@@ -191,4 +165,10 @@ if len(connectio_problem)>0:
 
     print(email)
     send_msg=send_emial(email)
+
+
+# In[ ]:
+
+
+
 

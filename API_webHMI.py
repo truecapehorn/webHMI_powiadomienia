@@ -1,10 +1,14 @@
 import requests
+<<<<<<< HEAD
 import time
 from datetime import datetime
 import pytz
 
 timezone_warszawa = pytz.timezone('Europe/Warsaw')
 timezone_utc = pytz.timezone('UTC')
+=======
+import time, datetime
+>>>>>>> 95e842325e3429694399bde1eab1aecec63855d0
 
 
 class ApiWebHmi:
@@ -79,6 +83,7 @@ class ApiWebHmi:
 
     def req_time(self, *args):
         ''' Zwraca unix time do zapytan'''
+<<<<<<< HEAD
         dt = datetime(*args)
         dt = dt.astimezone(timezone_warszawa)
         t = dt.timestamp()
@@ -90,6 +95,16 @@ class ApiWebHmi:
         date_time = datetime.fromtimestamp(unix_sec,tz=timezone_warszawa)
         d = date_time.strftime(format)
         return d
+=======
+        dt = datetime.datetime(*args)
+        print(dt.timetuple())
+        return str(int(time.mktime(dt.timetuple())))
+
+    def string_time(self, unix_sec):
+        '''Zwraca unixtime w fromacie strina '''
+        t = time.gmtime(unix_sec)
+        return time.strftime("%Y/%m/%d, %H:%M:%S", t)
+>>>>>>> 95e842325e3429694399bde1eab1aecec63855d0
 
 
 if __name__ == "__main__":
@@ -101,6 +116,7 @@ if __name__ == "__main__":
     # for i in con0:
     #     print(i)
 
+<<<<<<< HEAD
     # X_WH_CONNS = '10,12,14'
     # con1 = web.make_req('getCurValue', response=False, X_WH_CONNS=X_WH_CONNS)
     # print(con1)
@@ -112,6 +128,16 @@ if __name__ == "__main__":
 
     print(X_WH_START, X_WH_END)
 
+=======
+    X_WH_CONNS = '10,12,14'
+    con1 = web.make_req('getCurValue', response=False, X_WH_CONNS=X_WH_CONNS)
+    print(con1)
+
+    ID = '10'
+    X_WH_START = web.req_time(2019, 9, 1, 9, 30)
+    X_WH_END = web.req_time(2019, 9, 1, 10, 30)
+    X_WH_SLICES = '19'
+>>>>>>> 95e842325e3429694399bde1eab1aecec63855d0
     con2 = web.make_req('getGraphData',
                         response=False,
                         ID=ID,
@@ -119,5 +145,9 @@ if __name__ == "__main__":
                         X_WH_END=X_WH_END,
                         X_WH_SLICES=X_WH_SLICES)
     for n, i in enumerate(con2):
+<<<<<<< HEAD
         t = web.string_time(i['x'] / 1000)
+=======
+        t = web.string_time(i['x']/1000)
+>>>>>>> 95e842325e3429694399bde1eab1aecec63855d0
         print(n, t, i)
