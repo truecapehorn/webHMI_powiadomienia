@@ -80,7 +80,7 @@ class ApiWebHmi:
 
     def string_time(self, unix_sec):
         '''Zwraca unixtime w fromacie strina '''
-        t = time.gmtime(unix_sec / 1000)
+        t = time.gmtime(unix_sec)
         return time.strftime("%Y/%m/%d, %H:%M:%S", t)
 
 
@@ -108,5 +108,5 @@ if __name__ == "__main__":
                         X_WH_END=X_WH_END,
                         X_WH_SLICES=X_WH_SLICES)
     for n, i in enumerate(con2):
-        t = web.string_time(i['x'])
+        t = web.string_time(i['x']/1000)
         print(n, t, i)
