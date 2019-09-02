@@ -1,133 +1,123 @@
 import requests
-import json
 import time
+from datetime import datetime
+import pytz
+
+timezone_warszawa = pytz.timezone('Europe/Warsaw')
+timezone_utc = pytz.timezone('UTC')
 
 
-def response_status(action, r):
-    '''Wydrukowanie wynikow'''
-    # Response, status etc
-    print('\n' + 140 * '-' + '\n')
-    print('* {0} dla URL: {1}\n  Kodowanie znaków: {2}\n'.format(action, r.url, r.apparent_encoding))
-    print('* ODPOWIEDZ SERWERA:\n{0}'.format(r.text))  # TEXT/HTML
-    print('* KOD STATUSU I STATUS:\n[{0} --> {1}]\n'.format(r.status_code, r.reason))  # HTTP
-    print('* NAGLOWEK ODPOWIEDZI:\n{0}\n'.format(r.headers))
-    print('<!---------koniec-----------!>')
+class ApiWebHmi:
+    """ Umozliwia połaczenie sie z urzadzniem webHMI za pomocą jego API """
 
+    def __init__(self, device_adress, api_kay):
+        self.device_adress = device_adress
+        self.headers = {'X-WH-APIKEY': api_kay,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-WH-CONNS': '',
+                        'X-WH-START': '',
+                        'X-WH-END': '',
+                        'X-WH-REG-IDS': '',
+                        'X-WH-SLICES': '',
+                        'X-WH-REGS': '',
+                        }
 
-def connectionList(device_adress, headers):
-    '''Zczytanie listy połaczen webHMI'''
-    # ADRESS
-    api_adress = '/api/connections'
-    url = device_adress + api_adress
-    # GET
-    r = requests.get(url, headers=headers)
-    #response
-    # response_status('connextion', r)
+        self.api_adress = {'connectionList': {'adress': '/api/connections'},
+                           'registerList': {'adress': '/api/registers/'},
+                           'trendList': {'adress': '/api/trends/'},
+                           'graphList': {'adress': '/api/graphs'},
+                           'getCurValue': {'adress': '/api/register-values'},
+                           'getLocTime': {'adress': '/api/timeinfo'},
+                           'getRegLog': {'adress': '/api/register-log'},
+                           'getGraphData': {'adress': '/api/graph-data/'},
+                           }
 
-    return r.json()
+    def make_api_adress(self, action_name, kwargs):
+        '''Robi adres zapytania'''
 
+        if 'ID' in kwargs:  # sprawdznie czy nie trzeba uzyc rozszerzonej wersji api adresu
+            ID = kwargs['ID']
+        else:
+            ID = ''
+        api_adress = self.api_adress[action_name]['adress'] + '{}'.format(ID)
+        return api_adress
 
-def registerList(device_adress, headers):
-    '''Zczytanie listy rejestrow webHMI'''
-    # ADRESS
-    api_adress = '/api/registers/'
-    url = device_adress + api_adress
-    # GET
-    r = requests.get(url, headers=headers)
-    return r.json()
+    def make_headers(self, kwargs):
+        '''Robi nagłowkek zapytania'''
+        headers = self.headers
+        # sprawdznie czy nie trzeba nadpisac naglowka
+        for k, v in kwargs.items():
+            k = k.replace('_', '-')  # zamiana spacji na myślnik
+            if k in headers.keys():
+                headers[k] = v
+        return headers
 
+    def make_req(self, action_name, response=False, **kwargs):
+        '''Wykonuje zapytanie (rodzaj zapytania, sczegoly zapytania, argumenty opcionalne)'''
+        # ADRESS
+        api_adress = self.make_api_adress(action_name, kwargs)
+        url = self.device_adress + api_adress
+        print('Polaczenie na adres: ', url)
+        # HEAD
+        head = self.make_headers(kwargs)
+        # GET
+        r = requests.get(url, headers=head)
+        if response == True:
+            self.response_status(action_name, r)
+        return r.json()
 
-def trendList(device_adress, headers):
-    '''Zczytanie listy trendow webHMI'''
-    # ADRESS
-    api_adress = '/api/trends/'
-    url = device_adress + api_adress
-    # GET
-    r = requests.get(url, headers=headers)
-    return r.json()
+    def response_status(self, action, r):
+        '''Drukuje status odpowiedzi'''
+        # Response, status etc
+        print('\n' + 140 * '-' + '\n')
+        print('* {0} dla URL: {1}\n  Kodowanie znaków: {2}\n'.format(action, r.url, r.apparent_encoding))
+        print('* ODPOWIEDZ SERWERA:\n{0}'.format(r.text))  # TEXT/HTML
+        print('* KOD STATUSU I STATUS:\n[{0} --> {1}]\n'.format(r.status_code, r.reason))  # HTTP
+        print('* NAGLOWEK ODPOWIEDZI:\n{0}\n'.format(r.headers))
+        print('<!---------koniec-----------!>')
 
+    def req_time(self, *args):
+        ''' Zwraca unix time do zapytan'''
+        dt = datetime(*args)
+        dt = dt.astimezone(timezone_warszawa)
+        t = dt.timestamp()
+        return str(int(t)-7200)
 
-def graphList(device_adress, headers):
-    '''Zczytanie listy grafow webHMI'''
-    # ADRESS
-    api_adress = '/api/graphs/'
-    url = device_adress + api_adress
-    # GET
-    r = requests.get(url, headers=headers)
-    return r.json()
-
-
-def getCurValue(device_adress, headers):
-    '''Zczytanie wartosci z rejestru'''
-    # ADRESS
-    api_adress = '/api/register-values'
-    url = device_adress + api_adress
-    # GET
-    r = requests.get(url, headers=headers)
-    return r.json()
-
-
-def getLocTime(device_adress, headers):
-    '''Zczytanie daty UNIX time'''
-    # ADRESS
-    api_adress = '/api/timeinfo'
-    url = device_adress + api_adress
-    # GET
-    r = requests.get(url, headers=headers)
-    return r.json()
-
-
-def getRegLog(device_adress, headers):
-    '''Zczytanie wartosci logow'''
-    # ADRESS
-    api_adress = '/api/register-log'
-    url = device_adress + api_adress
-    # GET
-    r = requests.get(url, headers=headers)
-    return r.json()
-
-
-def getGraphData(device_adress, headers):
-    '''Zczytanie wartosc i wykresow'''
-    # ADRESS
-    api_adress = '/api/graph-data/'
-    url = device_adress + api_adress
-    # GET
-    r = requests.get(url, headers=headers)
-    action = 'pobranie wykresow'
-    response_status(action, r)
-    return r.json()
-
-
-def getGraph(device_adress, headers, graphID):
-    '''Zczytanie wartosc i wykresow ale dla konkretnego'''
-    # ADRESS
-    api_adress = '/api/graph-data/{}'.format(graphID)
-    url = device_adress + api_adress
-    # GET
-    r = requests.get(url, headers=headers)
-    action = 'pobranie wykresow'
-    # response_status(action,r)
-    return r.json()
+    def string_time(self, unix_sec):
+        '''Zwraca unixtime w fromacie strina '''
+        format = "%Y-%m-%d %H:%M:%S %Z%z"
+        date_time = datetime.fromtimestamp(unix_sec,tz=timezone_warszawa)
+        d = date_time.strftime(format)
+        return d
 
 
 if __name__ == "__main__":
+    from settings import device_adress, APIKEY
 
-    # USER = 'admin'
-    # PASS = 'elam4321'
-    device_adress = 'http://80.50.4.62:60043'
+    web = ApiWebHmi(device_adress, APIKEY)
 
-    headers = {'X-WH-APIKEY': 'D606230FEB2CCF4A3520B334BE0E5A29C1311EB0',
-               'Accept': 'application/json',
-               'Content-Type': 'application/json',
-               'X-WH-CONNS': '5',
-               'X-WH-START': '',
-               'X-WH-END': '',
-               'X-WH-REG-IDS':'',
-               'X-WH-SLICES': '',
-               'X-WH-REGS': '',
-               }
+    # con0=web.make_req('connectionList')
+    # for i in con0:
+    #     print(i)
 
+    # X_WH_CONNS = '10,12,14'
+    # con1 = web.make_req('getCurValue', response=False, X_WH_CONNS=X_WH_CONNS)
+    # print(con1)
 
-    val=getCurValue(device_adress,headers)
-    print(val)
+    ID = '1'
+    X_WH_START = web.req_time(2019, 9, 1, 9, 30)
+    X_WH_END = web.req_time(2019, 9, 1, 10, 30)
+    X_WH_SLICES = '5'
+
+    print(X_WH_START, X_WH_END)
+
+    con2 = web.make_req('getGraphData',
+                        response=False,
+                        ID=ID,
+                        X_WH_START=X_WH_START,
+                        X_WH_END=X_WH_END,
+                        X_WH_SLICES=X_WH_SLICES)
+    for n, i in enumerate(con2):
+        t = web.string_time(i['x'] / 1000)
+        print(n, t, i)
