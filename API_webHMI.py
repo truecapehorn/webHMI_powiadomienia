@@ -1,4 +1,5 @@
 import requests
+import time, datetime
 
 
 class ApiWebHmi:
@@ -71,6 +72,17 @@ class ApiWebHmi:
         print('* NAGLOWEK ODPOWIEDZI:\n{0}\n'.format(r.headers))
         print('<!---------koniec-----------!>')
 
+    def req_time(self, *args):
+        ''' Zwraca unix time do zapytan'''
+        dt = datetime.datetime(*args)
+        print(dt.timetuple())
+        return str(int(time.mktime(dt.timetuple())))
+
+    def string_time(self, unix_sec):
+        '''Zwraca unixtime w fromacie strina '''
+        t = time.gmtime(unix_sec / 1000)
+        return time.strftime("%Y/%m/%d, %H:%M:%S", t)
+
 
 if __name__ == "__main__":
     from settings import device_adress, APIKEY
@@ -85,15 +97,16 @@ if __name__ == "__main__":
     con1 = web.make_req('getCurValue', response=False, X_WH_CONNS=X_WH_CONNS)
     print(con1)
 
-    ID = '1'
-    X_WH_START = '1558296000'
-    X_WH_END = '1558382400'
-    X_WH_SLICES = '800'
+    ID = '10'
+    X_WH_START = web.req_time(2019, 9, 1, 9, 30)
+    X_WH_END = web.req_time(2019, 9, 1, 10, 30)
+    X_WH_SLICES = '19'
     con2 = web.make_req('getGraphData',
                         response=False,
                         ID=ID,
                         X_WH_START=X_WH_START,
                         X_WH_END=X_WH_END,
                         X_WH_SLICES=X_WH_SLICES)
-    for i in con2:
-        print(i)
+    for n, i in enumerate(con2):
+        t = web.string_time(i['x'])
+        print(n, t, i)
