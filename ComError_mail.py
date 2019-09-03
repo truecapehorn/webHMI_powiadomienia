@@ -151,17 +151,27 @@ def send_emial(content):
     return send_msg
 
 
+# ### Pobrnaie czasu
+
 # In[15]:
 
 
+czas=web.make_req('getLocTime')
+czas=web.string_time(czas['timestamp'])
+czas
+
+
+# In[16]:
+
+
 if len(connectio_problem)>0:
-    email=u"""<h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>
+    email=u"""<h4>{}</h4><h2>WebHMI ma problemy z komunikacją dla następujących urządzeń:</h2>
     \n{}
     \n<h4>Czasy skanowania</h4>
     {}
     \n<h4>10 najgorszych</h4>
     {}
-    """.format(mesages,pivot_sum.to_html(),worsts.to_html())
+    """.format(czas,mesages,pivot_sum.to_html(),worsts.to_html())
 
     print(email)
     send_msg=send_emial(email)
