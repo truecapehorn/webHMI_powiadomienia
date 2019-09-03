@@ -3,7 +3,7 @@
   "comment": " Trzeba wprowadzic wartosci:APIKEY - Ustawienia\\API klucz; device_adress - adres webhmi ktory wpisujemy do przegladarki np.(http://192.168.10.229 , http://192.168.4.6 , http://80.50.4.62:60043; length= zakres dni  ",
   "properties": {
     "device_adress": "http://80.50.4.62:60043",
-    "APIKEY": "D606230FEB2CCF4A3520B334BE0E5A29C1311EB0",
+    "APIKEY": "904973C77FE760C714DD9219567F9E59E6C28322",
     "samples": 200,
     "length": 1
   }
