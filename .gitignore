@@ -3,4 +3,4 @@ Pipfile*
 *.pyc
 .ipynb_checkpoints/*
 __pycache__/*
-
+.idea/*
