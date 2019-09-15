@@ -1,10 +1,6 @@
 import requests
+import pendulum
 import time
-from datetime import datetime
-import pytz
-
-timezone_utc = pytz.timezone('UTC')
-timezone_warszawa = pytz.timezone('Europe/Warsaw')
 
 
 class ApiWebHmi:
@@ -89,17 +85,17 @@ class ApiWebHmi:
 
     def req_time(self, *args):
         ''' Zwraca unix time do zapytan'''
-        dt = datetime(*args)
-        dt = dt.astimezone(timezone_utc)
-        t = dt.timestamp()
-        return str(t - 7200)
+        tz = pendulum.timezone('Etc/GMT-4')
+        dt = pendulum.datetime(*args, tz=tz)
+        timestamp = dt.int_timestamp
+        return str(timestamp)
 
     def string_time(self, unix_sec):
         '''Zwraca date w fromacie strina. '''
-        format = "%Y-%m-%d %H:%M:%S %Z%z"
-        date_time = datetime.fromtimestamp(unix_sec, tz=timezone_warszawa)
-        d = date_time.strftime(format)
-        return d
+        tz = pendulum.timezone('Europe/Warsaw')
+        dt = pendulum.from_timestamp(unix_sec)
+        dt = dt.in_tz(tz=tz)
+        return dt.to_datetime_string()
 
 
 if __name__ == "__main__":
@@ -116,8 +112,8 @@ if __name__ == "__main__":
     # print(con1)
 
     ID = '1'
-    X_WH_START = web.req_time(2019, 9, 2, 9, 0)
-    X_WH_END = web.req_time(2019, 9, 2, 10, 0)
+    X_WH_START = web.req_time(2019, 9, 14, 9, 0)
+    X_WH_END = web.req_time(2019, 9, 14, 10, 0)
     X_WH_SLICES = '5'
 
     print(X_WH_START, X_WH_END)
@@ -125,7 +121,7 @@ if __name__ == "__main__":
     # web.headers['X-WH-APIKEY']='22222233'
 
     con2 = web.make_req('getGraphData',
-                        response=True,
+                        response=False,
                         ID=ID,
                         X_WH_START=X_WH_START,
                         X_WH_END=X_WH_END,
