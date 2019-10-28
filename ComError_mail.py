@@ -10,7 +10,8 @@ from API_webHMI import ApiWebHmi
 from settings import device_adress, APIKEY
 
 import pandas as pd
-import numpy as np
+# import numpy as np
+import time
 
 
 # In[2]:
@@ -134,10 +135,10 @@ import glob
 
 def send_emial(content):
 
-    addr=['tito02@o2.pl', 'norbert.jablonski@elam.pl']#,'michal.marchelewski@elam.pl']
-    addr = ['jablonski.norbert@gmail.com','tito02@o2.pl']
+    addr = ['norbert.jablonski@elam.pl','tito02@o2.pl']
     for i in range(len(addr)):
         print('Wysłanie wiadomosci do {}'.format(addr[i]))
+
         envelope = Envelope(
             from_addr=( u'WebHMI - Raport'),
             to_addr=(addr[i]),
@@ -145,11 +146,25 @@ def send_emial(content):
             html_body=email,
         )
         #envelope.add_attachment(str(atachment))
+        try:
+        # Send the envelope using an ad-hoc connection...
+            envelope.send('smtp.googlemail.com', login='truecapehorn@gmail.com',password='Ptjczinp249', tls=True,)
+            print('email do adresata. {} wysłany z meila 1.'.format(addr[i]))
+            time.sleep(5)
 
-    # Send the envelope using an ad-hoc connection...
-        send_msg=envelope.send('smtp.googlemail.com', login='truecapehorn@gmail.com',password='Ptjczinp249', tls=True,)
-        print('email do adresata. {} wysłany.'.format(addr[i]))  
-    return send_msg
+        except Exception as e:
+            print("1 Problem z wyslaniem meila do ",addr[i])
+            print(e)
+            time.sleep(5)
+            try:
+                envelope.send('smtp.googlemail.com', login='jablonski.norbert@gmail.com', password='Ptjczinp249', tls=True, )
+                print('email do adresata. {} wysłany z meila 2.'.format(addr[i]))
+                time.sleep(5)
+            except Exception as e:
+                print("2 Problem z wyslaniem meila do ", addr[i])
+                print(e)
+                time.sleep(5)
+
 
 
 # ### Pobrnaie czasu
@@ -159,8 +174,6 @@ def send_emial(content):
 
 czas=web.make_req('getLocTime')
 czas=web.string_time(czas['timestamp'])
-czas
-
 
 # In[16]:
 
@@ -175,7 +188,7 @@ if len(connectio_problem)>0:
     """.format(czas,mesages,pivot_sum.to_html(),worsts.to_html())
 
     print(email)
-    send_msg=send_emial(email)
+    send_emial(email)
 
 
 # In[ ]:
